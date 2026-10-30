@@ -1,17 +1,110 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; img-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <title>.agents</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="locales.js" defer></script>
-  <script src="catalog.snapshot.js" defer></script>
-  <script src="app.js" defer></script>
+  <meta name="description" content="Skill Monitor: local inspection of skills, agents, MCP and RAG on Mac. Preview 0.2.3 for Apple Silicon.">
+  <meta name="color-scheme" content="light">
+  <title>Skill Monitor | Preview 0.2.3</title>
+  <link rel="stylesheet" href="site.css">
+  <script src="site-locales.js" defer></script>
+  <script src="site.js" defer></script>
 </head>
 <body>
-  <div id="app" aria-busy="true"></div>
+  <a class="skip-link" href="#main" data-text="skipLink">Skip to content</a>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true"></span><span data-text="brand">Skill Monitor</span></a>
+      <nav class="primary-nav">
+        <a href="#features" data-text="nav.features">Features</a>
+        <a href="#platforms" data-text="nav.platforms">Platforms</a>
+        <a href="https://github.com/bearatol/agents-skill-monitor-site" data-text="nav.source">Source</a>
+      </nav>
+      <div class="language-switcher" role="group" data-label="languageLabel" aria-label="Language">
+        <button type="button" data-language="ru" lang="ru" aria-pressed="false">RU</button>
+        <button type="button" data-language="en" lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-language="zh" lang="zh-CN" aria-pressed="false">&#31616;&#20307;&#20013;&#25991;</button>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow" data-text="hero.eyebrow">Preview 0.2.3</p>
+          <h1 id="hero-title" data-text="hero.title">Your AI tool components in one list</h1>
+          <p class="hero-summary" data-text="hero.summary">View skills, agents, MCP servers and RAG sources in selected folders on your Mac. Compare metadata, declared links and changes between reads.</p>
+          <div class="download-block">
+            <p class="download-version" data-text="download.version">0.2.3-preview &#183; ZIP</p>
+            <p class="download-requirements" id="download-requirements" data-text="download.requirements">macOS 13 or later &#183; Apple Silicon (arm64)</p>
+            <a class="button button-primary" href="https://github.com/bearatol/agents-skill-monitor-site/releases/download/v0.2.3-preview/AgentsSkillMonitor-macOS-arm64.zip" aria-describedby="download-requirements download-warning"><span data-text="download.label">Download for Apple Silicon Mac</span><span class="download-arrow" aria-hidden="true"></span></a>
+            <p class="download-warning" id="download-warning" data-text="download.warning">Preview build with an ad-hoc signature, not notarized by Apple. macOS may block the first launch. Launch on a clean Mac has not been tested.</p>
+            <a class="text-link" href="https://github.com/bearatol/agents-skill-monitor-site/releases/tag/v0.2.3-preview" data-text="download.releaseNotes">Changes and remaining checks</a>
+          </div>
+        </div>
+        <aside class="local-panel" aria-labelledby="local-title">
+          <span class="panel-rule" aria-hidden="true"></span>
+          <p class="eyebrow" data-text="preview.label">Mac client</p>
+          <h2 id="local-title" data-text="preview.title">Local inspection without changing files</h2>
+          <p data-text="preview.body">The app reads supported metadata in selected folders, starting with ~/.agents. It does not run components or make network requests. Folders, language and the journal last only until you quit. This website does not read files.</p>
+          <span class="panel-end" aria-hidden="true"></span>
+        </aside>
+      </section>
+
+      <section class="features section" id="features" aria-labelledby="features-title">
+        <div class="section-heading">
+          <p class="eyebrow" data-text="features.eyebrow">Available on Mac</p>
+          <h2 id="features-title" data-text="features.title">Inspect components without running them</h2>
+        </div>
+        <div class="feature-grid">
+          <article class="feature"><h3 data-text="features.items.0.title">Choose your folders</h3><p data-text="features.items.0.body">~/.agents is selected by default. Add other folders as needed. The app reads SKILL.md files, agent metadata and supported MCP and RAG configurations. Other formats may not appear in the list.</p></article>
+          <article class="feature"><h3 data-text="features.items.1.title">Declared links</h3><p data-text="features.items.1.body">See the dependencies and sources declared in metadata and which references match indexed components. This does not establish working connections.</p></article>
+          <article class="feature"><h3 data-text="features.items.2.title">Findings with explanations</h3><p data-text="features.items.2.body">Passive metadata checks identify patterns for manual review, including informational advisories. They are not antivirus protection or a source-code audit.</p></article>
+          <article class="feature"><h3 data-text="features.items.3.title">Changes while the app is open</h3><p data-text="features.items.3.body">Optionally refresh every 30 seconds while the app is open. Folder choices, language and the journal stay in memory only until you quit. Changing folders resets history.</p></article>
+          <article class="feature"><h3 data-text="features.items.4.title">Manual exchange with your AI</h3><p data-text="features.items.4.body">Copy a request, send it to your AI, then paste its response with suggested folders. No model is connected. Suggestions are added only after you choose them.</p></article>
+          <article class="feature"><h3 data-text="features.items.5.title">Local reading</h3><p data-text="features.items.5.body">The Mac client makes no network requests, collects no telemetry, changes no files and runs no packages. APM ownership stays unchanged; APM installation and updates are not connected.</p></article>
+        </div>
+      </section>
+
+      <section class="platforms section" id="platforms" aria-labelledby="platforms-title">
+        <div class="section-heading">
+          <p class="eyebrow" data-text="platforms.eyebrow">Availability</p>
+          <h2 id="platforms-title" data-text="platforms.title">A Mac build is available now</h2>
+        </div>
+        <div class="platform-grid">
+          <article class="platform platform-available">
+            <h3 data-text="platforms.macTitle">macOS</h3>
+            <p data-text="platforms.macBody">Preview 0.2.3 for macOS 13+ on Apple Silicon. Russian, English and Simplified Chinese interface. No Intel Mac build.</p>
+          </article>
+          <article class="platform">
+            <span class="status-label" data-text="platforms.pendingLabel">No binary yet</span>
+            <h3 data-text="platforms.windowsTitle">Windows</h3>
+            <p data-text="platforms.windowsBody">The shared interface is in preparation. No native Windows client or binary is available yet.</p>
+          </article>
+          <article class="platform">
+            <span class="status-label" data-text="platforms.pendingLabel">No binary yet</span>
+            <h3 data-text="platforms.linuxTitle">Linux</h3>
+            <p data-text="platforms.linuxBody">The shared interface is in preparation. No native Linux client or binary is available yet.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="scope-note" aria-labelledby="scope-title">
+        <h2 id="scope-title" data-text="scope.title">What has been checked</h2>
+        <p data-text="scope.body">The Mac client passed 503 assertions and 11 real-filesystem scenarios, with no skips. The shared interface passed 21 checks; a fresh independent product review covered source and a synthetic DOM. This is not verification in a real browser or across three operating systems. Clean-Mac launch, VoiceOver and the minimum 1040&#215;650 window have not been verified. No user study has been conducted.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-top"><span class="footer-brand" data-text="brand">Skill Monitor</span><a href="https://github.com/bearatol/agents-skill-monitor-site/blob/main/LICENSE" data-text="footer.license">MIT license</a></div>
+      <div class="footer-bottom">
+        <p data-text="footer.note">Independent isolated security review is not complete. The native core, dependencies and live AI or antivirus connections require separate review.</p>
+        <div class="footer-links">
+          <a href="https://github.com/bearatol/agents-skill-monitor-site/tree/main/clients/skill-monitor-macos" data-text="footer.source">Source on GitHub</a>
+          <a href="https://github.com/bearatol/agents-skill-monitor-site/releases/tag/v0.2.3-preview" data-text="footer.releaseNotes">Release notes</a>
+        </div>
+      </div>
+    </footer>
+  </div>
 </body>
 </html>
