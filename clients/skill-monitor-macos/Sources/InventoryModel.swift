@@ -92,6 +92,19 @@ final class InventoryModel: ObservableObject {
 
     var selectedSkill: LocalSkill? { filteredSkills.first { $0.id == selectedID } }
 
+    var findingCount: Int { inventory.skills.reduce(0) { $0 + $1.findings.count } }
+    var findingComponentCount: Int { inventory.skills.filter { !$0.findings.isEmpty }.count }
+
+    func showAllFindings() {
+        search = ""
+        kindFilter = "all"
+        duplicatesOnly = false
+        findingsOnly = true
+        showNotices = false
+        mode = "checks"
+        selectedID = filteredSkills.first?.id
+    }
+
     func start() {
         guard !started else { return }
         started = true

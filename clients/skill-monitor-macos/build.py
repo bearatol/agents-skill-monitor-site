@@ -16,7 +16,8 @@ import zipfile
 
 SOURCE = Path(__file__).resolve().parent
 ROOT = SOURCE.parents[1]
-OUTPUT = ROOT / "build" / "skill-monitor-macos"
+VERSION = "0.3.0"
+OUTPUT = ROOT / "build" / "skill-monitor-macos" / VERSION
 OWNER = "agents-local-skill-monitor"
 APP_NAME = "Agents Skill Monitor.app"
 EXECUTABLE = "AgentsSkillMonitor"
@@ -39,11 +40,12 @@ def main():
     architectures = ["arm64", "x86_64"] if architecture == "universal2" else [architecture]
     output = OUTPUT / architecture if arguments.arch else OUTPUT
     sources = [SOURCE / "Sources" / name for name in
-               ("SkillInventory.swift", "MetadataAnalysis.swift", "FolderSuggestions.swift", "Localization.swift", "InventoryModel.swift", "App.swift")]
+               ("SkillInventory.swift", "MetadataAnalysis.swift", "FolderSuggestions.swift", "Localization.swift", "InventoryModel.swift",
+                "LocalAI.swift", "ComponentAudit.swift", "AuditSession.swift", "AuditViews.swift", "App.swift")]
     resource = SOURCE / "Resources" / "locales.json"
     if any(not path.is_file() or path.is_symlink() for path in [*sources, resource]):
         raise SystemExit("Expected regular native source and localization files.")
-    for directory in (ROOT / "build", OUTPUT, output, output / "module-cache",
+    for directory in (ROOT / "build", ROOT / "build" / "skill-monitor-macos", OUTPUT, output, output / "module-cache",
                       *(output / "module-cache" / arch for arch in architectures)):
         if directory.is_symlink():
             raise SystemExit("Build output directories must not be symlinks.")
@@ -89,9 +91,9 @@ def main():
         shutil.copyfile(resource, resources / "locales.json")
         shutil.copyfile(ROOT / "LICENSE", resources / "LICENSE")
         (resources / "build-origin.json").write_text(json.dumps({
-            "owner": OWNER, "version": "0.2.3", "architecture": architecture,
+            "owner": OWNER, "version": VERSION, "architecture": architecture,
             "architectures": architectures,
-            "scope": "Read-only local component metadata; user-confirmed folders",
+            "scope": "Read-only selected descriptors; explicit local-model requests; user-confirmed folders",
         }, indent=2) + "\n")
         info = {
             "CFBundleName": "Agents Skill Monitor",
@@ -99,8 +101,8 @@ def main():
             "CFBundleIdentifier": "io.github.bearatol.agents.skillmonitor",
             "CFBundleExecutable": EXECUTABLE,
             "CFBundlePackageType": "APPL",
-            "CFBundleShortVersionString": "0.2.3",
-            "CFBundleVersion": "5",
+            "CFBundleShortVersionString": VERSION,
+            "CFBundleVersion": "6",
             "LSMinimumSystemVersion": "13.0",
             "NSHighResolutionCapable": True,
             "NSPrincipalClass": "NSApplication",

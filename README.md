@@ -1,109 +1,130 @@
-# Skill Monitor
+# Skill Monitor 0.3.0-preview
 
 [Русский](#русский) · [English](#english) · [简体中文](#简体中文)
 
 ## Русский
 
-Skill Monitor показывает навыки, агентов, MCP-серверы и источники RAG в выбранных
-папках на Mac. По умолчанию выбрана `~/.agents`. Это предварительная версия 0.2.3.
+Skill Monitor показывает навыки, агентов, MCP и объявления источников RAG
+в выбранных папках Mac. По умолчанию выбрана `~/.agents`.
 
-[Скачать ZIP для Mac](https://github.com/bearatol/agents-skill-monitor-site/releases/download/v0.2.3-preview/AgentsSkillMonitor-macOS-universal2.zip).
-Нужна macOS 13 или новее. Один ZIP содержит сборки для Apple Silicon и Intel.
-Сборка подписана ad-hoc и не заверена Apple. Первый запуск может быть заблокирован;
-запуск на чистом Mac не проверен.
+[Скачать ZIP для Mac](https://github.com/bearatol/agents-skill-monitor-site/releases/download/v0.3.0-preview/AgentsSkillMonitor-macOS-universal2.zip). Нужна macOS 13 или новее.
+Один universal2-архив содержит arm64 и x86_64. Предварительная сборка подписана
+ad-hoc, без нотариализации Apple. macOS может заблокировать первый запуск.
+Запуск на чистом Mac ещё не проверен.
 
-Клиент читает поддерживаемые метаданные `SKILL.md`, агентов, MCP и RAG, а не все
-форматы. Ссылки показывают объявления, а не работающие соединения. Пассивные
-замечания помогают выбрать, что проверить вручную; это не антивирус и не аудит
-исходного кода. Обмен с вашим ИИ работает через копирование запроса и вставку
-ответа, без подключения модели.
+В 0.3.0 появились заметные кнопки с рамками, общий переход к замечаниям и число
+замечаний с текстом уровня важности. Можно проверить один файл описания:
+отчёт показывает возможные признаки, файл и строки при наличии, SHA-256 и границы проверки.
+Вспомогательный код и содержимое RAG не исследуются. Заявленные связи
+не подтверждают работающие соединения; отсутствие замечаний не доказывает безопасность.
 
-Обновление раз в 30 секунд можно включить на время работы приложения. Выбор
-папок, язык и журнал хранятся в памяти до закрытия. Клиент не обращается к сети,
-не собирает телеметрию, не изменяет файлы и не запускает пакеты. Учёт APM
-не меняется; установка и обновление через APM не подключены.
+Локальный ИИ подключается по желанию через loopback-сервер, совместимый с OpenAI:
+MLX (9944), Ollama (11434), LM Studio (1234) или вручную заданный порт.
+Сначала явно проверьте подключение, выберите модель и прочитайте точный
+предпросмотр. Каждая отправка требует нового нажатия. Скрытие может пропустить
+секреты; сервер может сохранять или пересылать запросы. Loopback не гарантирует
+работу без интернета. Ответ модели показан обычным текстом и не проверен;
+неполные ответы отклоняются. Серверы не запускаются автоматически, API-ключи не поддерживаются.
 
-Для каждой архитектуры пройдены 503 проверки и 11 сценариев с реальной файловой
-системой, без пропусков: arm64 напрямую и x86_64 через Rosetta на Apple Silicon.
-Работа на Mac с Intel и на macOS 13 не проверена.
-Общий интерфейс прошёл 21 проверку и независимое ревью исходников и синтетической
-DOM-среды. Это не проверка в реальном браузере или на трёх ОС. VoiceOver,
-минимальное окно 1040×650 и работа с реальными пользователями не проверены.
-Независимое изолированное ревью безопасности не завершено.
+Обмен предложениями папок через копирование и вставку остаётся отдельным процессом.
+Предложения не проверены и не выбраны до вашего решения. Автообновление раз
+в 30 секунд можно включить. Журнал хранит до 500 событий. Папки, язык, настройки,
+журнал и ответы проверки остаются в памяти до выхода. Смена папок сбрасывает журнал.
+Клиент не применяет исправления, не запускает компоненты, не устанавливает
+плагины или пакеты, не изменяет исходники и не собирает телеметрию.
+Установка и обновление через APM не подключены.
 
-Для Windows и Linux подготовлен только общий интерфейс. Нативного подключения,
-общего ядра, сохранения настроек и сборок нет. Подробности:
-[Mac-клиент](clients/skill-monitor-macos/README.md),
-[общий интерфейс](clients/skill-monitor-desktop/README.md),
-[версия 0.2.3-preview](https://github.com/bearatol/agents-skill-monitor-site/releases/tag/v0.2.3-preview),
-[сайт](https://bearatol.github.io/agents-skill-monitor-site/).
+Для каждой архитектуры пройдены 739 проверок, тест упаковки и 11 сценариев
+с реальной файловой системой без пропусков: arm64 напрямую и x86_64 через
+Rosetta на Apple Silicon. Готовое приложение выполнило GET и POST с тестовым
+loopback-сервером; настоящий вывод нейромодели не проверялся. Не проверены
+физический Intel Mac, macOS 13, всё минимальное окно, работа только
+с клавиатурой, VoiceOver и удобство для реальных пользователей.
+Для Windows и Linux сборок нет; неподключённый общий интерфейс сохраняет 21 проверку.
 
 ## English
 
-Skill Monitor lists skills, agents, MCP servers and RAG sources in selected
-folders on your Mac. `~/.agents` is selected by default. This is preview 0.2.3.
+Skill Monitor lists skills, agents, MCP entries and RAG source declarations in
+selected Mac folders. `~/.agents` is selected by default.
 
-[Download the ZIP for Mac](https://github.com/bearatol/agents-skill-monitor-site/releases/download/v0.2.3-preview/AgentsSkillMonitor-macOS-universal2.zip).
-Requires macOS 13 or later. One ZIP contains Apple Silicon and Intel builds.
-The build has an ad-hoc signature and is not notarized by Apple. macOS may block
-the first launch; launch on a clean Mac has not been tested.
+[Download the ZIP for Mac](https://github.com/bearatol/agents-skill-monitor-site/releases/download/v0.3.0-preview/AgentsSkillMonitor-macOS-universal2.zip). Requires macOS 13 or later.
+One universal2 archive includes arm64 and x86_64. This preview has an ad-hoc
+signature and is not notarized by Apple. macOS may block the first launch.
+Launch on a clean Mac has not been tested.
 
-The client reads supported metadata for `SKILL.md`, agents, MCP and RAG, not every
-format. Links show declarations, not working connections. Passive findings help
-you decide what to review manually; they are not antivirus protection or a
-source-code audit. Exchange with your AI uses a copied request and pasted
-response, with no model connection.
+Version 0.3.0 adds visible bordered buttons, global findings navigation and
+finding counts with severity text. Review one descriptor for suspected signals,
+file evidence and line numbers where available, SHA-256 and coverage limits. Helper code and RAG contents
+are outside the review. Declared links do not establish working connections;
+no findings does not establish safety.
 
-You can enable refresh every 30 seconds while the app is open. Folder choices,
-language and the journal stay in memory until you quit. The client makes no
-network requests, collects no telemetry, changes no files and runs no packages.
-APM ownership is unchanged; APM installation and updates are not connected.
+Optionally connect to an OpenAI-compatible model through a loopback server:
+MLX (9944), Ollama (11434), LM Studio (1234), or a manually entered port.
+Explicitly check the connection, choose a model and inspect the exact preview.
+Each send needs a new click. Redaction may miss secrets; the server may store
+or forward prompts. Loopback does not guarantee offline execution. Model output
+is unverified plain text; incomplete responses are rejected. The app does not
+start servers automatically or support API keys.
 
-The client passed 503 assertions and 11 real-filesystem scenarios on each
-architecture, with no skips: arm64 natively and x86_64 via Rosetta on Apple
-Silicon. Physical Intel Macs and macOS 13 have not been tested.
-The shared interface passed 21 checks and an independent review of source and a
-synthetic DOM. This is not verification in a real browser or across three operating
-systems. VoiceOver, the minimum 1040×650 window and real-user usability have not
-been verified. Independent isolated security review is not complete.
+Copy-and-paste folder suggestions remain a separate manual workflow.
+Suggestions are unverified and unchecked until you choose them. Optional refresh
+runs every 30 seconds. The journal holds up to 500 events. Folders, language,
+settings, journal and audit responses stay in memory until quit. Changing folders
+resets the journal. The client does not apply fixes, run components, install
+plugins or packages, modify source files or collect telemetry. APM installation
+and update controls are not connected.
 
-Only the shared interface is prepared for Windows and Linux. There is no native
-connection, shared core, saved settings or binary for them. See the
-[Mac client](clients/skill-monitor-macos/README.md),
-[shared interface](clients/skill-monitor-desktop/README.md),
-[0.2.3-preview release](https://github.com/bearatol/agents-skill-monitor-site/releases/tag/v0.2.3-preview)
-and [website](https://bearatol.github.io/agents-skill-monitor-site/).
+Each architecture passed 739 assertions, a packaging test and 11 real-filesystem
+scenarios with no skips: arm64 natively and x86_64 through Rosetta on Apple
+Silicon. The bundled app completed GET and POST against a synthetic loopback
+fixture; real model inference was not tested. Physical Intel hardware, macOS 13,
+the full minimum window, keyboard-only use, VoiceOver and human usability remain
+unverified. There are no Windows or Linux binaries; the unconnected shared
+interface retains 21 checks.
 
 ## 简体中文
 
-Skill Monitor 在 Mac 上列出所选文件夹中的技能、智能体、MCP 服务器和 RAG 数据源。
-默认选择 `~/.agents`。当前为 0.2.3 预览版。
+Skill Monitor 列出 Mac 所选文件夹中的技能、智能体、MCP 条目和 RAG 数据源声明。
+默认选择 `~/.agents`。
 
-[下载 Mac 版 ZIP](https://github.com/bearatol/agents-skill-monitor-site/releases/download/v0.2.3-preview/AgentsSkillMonitor-macOS-universal2.zip)。
-需要 macOS 13 或更高版本。一个 ZIP 包含 Apple Silicon 和 Intel 构建。
-构建使用 ad-hoc 签名，未经 Apple 公证。macOS 可能阻止首次启动；
-尚未在干净的 Mac 环境中测试启动。
+[下载 Mac 版 ZIP](https://github.com/bearatol/agents-skill-monitor-site/releases/download/v0.3.0-preview/AgentsSkillMonitor-macOS-universal2.zip)。需要 macOS 13 或更高版本。
+一个 universal2 压缩包包含 arm64 和 x86_64。预览构建使用 ad-hoc 签名，
+未经 Apple 公证。macOS 可能阻止首次启动。尚未在干净的 Mac 环境中测试启动。
 
-客户端读取 `SKILL.md`、智能体、MCP 和 RAG 的受支持元数据，并非所有格式。
-关联表示声明，不代表连接实际有效。被动检查提示帮助您决定手动核查哪些内容，
-并非杀毒保护或源代码审计。与您使用的 AI 交换信息需要复制请求并粘贴回复，
-应用未连接模型。
+0.3.0 增加了清晰的带边框按钮、全局检查提示入口，以及带级别文字的提示计数。
+可检查一个描述文件，查看疑似特征、文件及可用的行号证据、SHA-256 及检查范围限制。
+不检查辅助代码或 RAG 内容。声明的关联不能证明运行时连接有效；没有提示不能证明安全。
 
-可选择在应用打开时每 30 秒刷新。文件夹选择、语言和日志保存在内存中，退出即清除。
-客户端不发送网络请求、不收集遥测数据、不修改文件，也不运行软件包。
-不改变 APM 所有权记录，尚未接入 APM 的安装和更新功能。
+可选择通过兼容 OpenAI 的回环服务器连接模型：MLX（9944）、Ollama（11434）、
+LM Studio（1234），或手动输入端口。先明确检查连接、选择模型并检查完整预览。
+每次发送都需要重新点击。自动隐藏可能遗漏敏感信息；服务器可能保存或转发提示词。
+回环连接不保证离线运行。模型回复以未经验证的纯文本显示，不完整的回复会被拒绝。
+应用不会自动启动服务器，不支持 API 密钥。
 
-客户端在两种架构上各通过 503 项断言检查和 11 个真实文件系统场景，无跳过项：
-在 Apple Silicon 上原生运行 arm64，并通过 Rosetta 运行 x86_64。尚未在 Intel 硬件或 macOS 13 上验证。
-共享界面通过 21 项检查，并接受了覆盖源代码和模拟 DOM 环境的独立审查。
-这并不代表已在真实浏览器或三个操作系统上验证。尚未验证 VoiceOver、
-1040×650 最小窗口和真实用户的可用性。独立隔离安全审查尚未完成。
+通过复制粘贴交换文件夹建议仍是独立的手动流程。建议未经验证，默认不勾选，需由您选择。
+可开启每 30 秒刷新，日志最多保留 500 条事件。文件夹、语言、设置、日志和检查回复
+仅保存在内存中，退出即清除。更改文件夹会重置日志。客户端不应用修复、不运行组件、
+不安装插件或软件包、不修改源文件，也不收集遥测数据。尚未接入 APM 安装和更新功能。
 
-Windows 和 Linux 目前仅准备了共享界面，尚无原生连接、共享核心、设置保存功能或安装包。
-详见 [Mac 客户端](clients/skill-monitor-macos/README.md)、
-[共享界面](clients/skill-monitor-desktop/README.md)、
-[0.2.3-preview 版本](https://github.com/bearatol/agents-skill-monitor-site/releases/tag/v0.2.3-preview)
-和[网站](https://bearatol.github.io/agents-skill-monitor-site/)。
+每种架构均通过 739 项断言检查、一项打包测试及 11 个真实文件系统场景，无跳过项：
+在 Apple Silicon 上原生运行 arm64，并通过 Rosetta 运行 x86_64。打包后的应用已对
+模拟回环服务器完成 GET 和 POST，未测试真实模型推理。尚未验证实体 Intel Mac、
+macOS 13、完整最小窗口、纯键盘操作、VoiceOver 和真人可用性。
+没有 Windows 或 Linux 安装包；未接入原生功能的共享界面保留 21 项检查。
+
+## Details / Подробнее / 详情
+
+[Mac client / Mac-клиент / Mac 客户端](clients/skill-monitor-macos/README.md) ·
+[Shared interface / Общий интерфейс / 共享界面](clients/skill-monitor-desktop/README.md) ·
+[0.3.0-preview release](https://github.com/bearatol/agents-skill-monitor-site/releases/tag/v0.3.0-preview) ·
+[Website / Сайт / 网站](https://bearatol.github.io/agents-skill-monitor-site/)
+
+The descriptor review is an original workflow aligned with `ceo-ai:security` 0.9.
+SkillSpector, Docker and an antivirus engine are not bundled or required.
+Проверка описания основана на оригинальном процессе, согласованном с подходом
+`ceo-ai:security` 0.9. SkillSpector, Docker и антивирусный движок не включены и не требуются.
+描述文件检查是与 `ceo-ai:security` 0.9 方法一致的原创流程，
+不包含或依赖 SkillSpector、Docker 或杀毒引擎。
 
 ## Build and checks / Сборка и проверки / 构建与检查
 

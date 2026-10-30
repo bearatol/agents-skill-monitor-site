@@ -47,6 +47,8 @@ struct SkillMonitorApp: App {
 
 struct InventoryView: View {
     @ObservedObject var model: InventoryModel
+    @StateObject private var audit = AuditSession()
+    @State private var showAudit = false
     @State private var showSuggestions = false
     @State private var showFolderHelp = false
     @State private var chooseManuallyAfterSheet = false
@@ -79,8 +81,19 @@ struct InventoryView: View {
         }
         .tint(accent)
         .background(Color(nsColor: .windowBackgroundColor))
-        .onChange(of: model.selectedID) { _ in model.showNotices = false }
+        .onChange(of: model.selectedID) { _ in
+            model.showNotices = false
+            audit.invalidateScope()
+        }
+        .onChange(of: model.roots) { _ in audit.invalidateScope() }
+        .onChange(of: model.language) { _ in audit.invalidateScope() }
+        .onChange(of: model.inventory.scannedAt) { _ in
+            audit.validateSelection(component: model.selectedSkill, roots: model.roots, language: model.language)
+        }
         .onChange(of: model.mode) { _ in model.showNotices = false }
+        .sheet(isPresented: $showAudit, onDismiss: { audit.cancel() }) {
+            AuditWorkspaceView(session: audit, model: model)
+        }
         .sheet(isPresented: $showSuggestions, onDismiss: {
             if chooseManuallyAfterSheet {
                 chooseManuallyAfterSheet = false
@@ -132,6 +145,11 @@ struct InventoryView: View {
             }
             .buttonStyle(.bordered)
             .accessibilityIdentifier("ask-ai")
+            Button { showAudit = true } label: {
+                Label(l.text("local_ai"), systemImage: "desktopcomputer").frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityIdentifier("local-ai")
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     ForEach(model.roots, id: \.self) { root in folderRow(root) }
@@ -150,7 +168,9 @@ struct InventoryView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(l.text("connection_status")).font(MonitorTypography.caption.weight(.semibold))
                             .fixedSize(horizontal: false, vertical: true)
-                        Text(l.text("ai_not_connected")).font(MonitorTypography.caption)
+                        Label(l.text(audit.modelReady ? "local_ai_ready" : "local_ai_not_connected"),
+                              systemImage: audit.modelReady ? "checkmark.circle" : "circle.dashed")
+                            .font(MonitorTypography.caption)
                             .fixedSize(horizontal: false, vertical: true)
                         Text(l.text("antivirus_not_connected")).font(MonitorTypography.caption)
                             .fixedSize(horizontal: false, vertical: true)
@@ -179,7 +199,7 @@ struct InventoryView: View {
                 Text(URL(fileURLWithPath: root).lastPathComponent).font(MonitorTypography.callout.weight(.semibold)).lineLimit(1)
                 Spacer(minLength: 2)
                 Button { model.removeRoot(root) } label: { Image(systemName: "minus.circle") }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.bordered)
                     .help(l.text("remove_folder"))
                     .accessibilityLabel(l.text("remove_folder") + ": " + root)
                     .accessibilityIdentifier("remove-folder")
@@ -214,6 +234,7 @@ struct InventoryView: View {
             .accessibilityLabel(l.text("language"))
             .accessibilityIdentifier("language")
             Button { model.refresh() } label: { Label(l.text("refresh"), systemImage: "arrow.clockwise") }
+                .buttonStyle(.bordered)
                 .disabled(model.isScanning)
                 .keyboardShortcut("r", modifiers: .command)
                 .accessibilityIdentifier("refresh")
@@ -231,11 +252,27 @@ struct InventoryView: View {
             HStack(spacing: 16) {
                 Text(model.hasScanned ? l.count("total_components", model.inventory.skills.count) : l.text("scanning"))
                 if model.hasScanned { Text(l.count("duplicate_count", model.duplicateGroups.count)) }
-                Spacer(minLength: 0)
-                Button { model.showNotices.toggle() } label: {
-                    Label(model.hasScanned ? l.count("notice_count", model.inventory.notices.count) : l.text("read_notices"), systemImage: "text.bubble")
-                }.buttonStyle(.link).disabled(!model.hasScanned).accessibilityIdentifier("notices")
             }.font(MonitorTypography.caption).foregroundStyle(.secondary)
+            HStack(alignment: .top, spacing: 12) {
+                Button { model.showAllFindings() } label: {
+                    Label(l.count("view_all_findings", model.findingComponentCount), systemImage: "checklist")
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(!model.hasScanned)
+                .accessibilityIdentifier("view-all-findings")
+                Button { model.showNotices.toggle() } label: {
+                    Label(l.count("view_read_notices", model.inventory.notices.count), systemImage: "text.bubble")
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .buttonStyle(.bordered)
+                .disabled(!model.hasScanned)
+                .accessibilityIdentifier("notices")
+            }.font(MonitorTypography.callout)
+            if model.hasScanned {
+                Text(l.count("finding_count", model.findingCount))
+                    .font(MonitorTypography.caption).foregroundStyle(.secondary)
+            }
         }
     }
 
@@ -250,8 +287,7 @@ struct InventoryView: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, minHeight: 76, alignment: .leading)
-        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.primary.opacity(0.05)))
+        .accessibilityElement(children: .combine)
     }
 
     private var fileList: some View {
@@ -263,7 +299,8 @@ struct InventoryView: View {
                         .textFieldStyle(.plain).accessibilityIdentifier("search")
                     if !model.search.isEmpty {
                         Button { model.search = "" } label: { Image(systemName: "xmark.circle.fill") }
-                            .buttonStyle(.plain).foregroundStyle(.secondary)
+                            .buttonStyle(.bordered).foregroundStyle(.secondary)
+                            .help(l.text("clear_search"))
                             .accessibilityLabel(l.text("clear_search"))
                     }
                 }.padding(9).background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
@@ -291,9 +328,13 @@ struct InventoryView: View {
             } else if model.roots.isEmpty {
                 emptyState("no_folders", detail: "no_folders_detail", icon: "folder.badge.plus")
             } else if model.filteredSkills.isEmpty {
-                emptyState(model.inventory.skills.isEmpty ? (model.inventory.notices.isEmpty ? "no_files" : "no_files_with_notices") : "no_matches",
+                if model.findingsOnly && model.findingComponentCount == 0 {
+                    emptyState("no_check_findings", detail: "no_findings", icon: "checklist")
+                } else {
+                    emptyState(model.inventory.skills.isEmpty ? (model.inventory.notices.isEmpty ? "no_files" : "no_files_with_notices") : "no_matches",
                            detail: model.inventory.skills.isEmpty ? "no_files_detail" : "no_matches_detail",
                            icon: "doc.text.magnifyingglass")
+                }
             } else {
                 List(selection: $model.selectedID) {
                     ForEach(model.filteredSkills) { skill in
@@ -326,6 +367,16 @@ struct InventoryView: View {
             }
             Text(displaySummary(skill))
                 .font(MonitorTypography.callout).foregroundStyle(.secondary).lineLimit(2)
+            if !skill.findings.isEmpty {
+                let severity = highestSeverity(skill.findings)
+                Label(l.count("findings_badge", skill.findings.count)
+                      .replacingOccurrences(of: "{severity}", with: l.text("severity_" + severity)),
+                      systemImage: severityIcon(severity))
+                    .font(MonitorTypography.caption.weight(.semibold))
+                    .foregroundStyle(severityColor(severity))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("component-findings-badge")
+            }
             Text(skill.filePath).font(MonitorTypography.code).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
         }
         .padding(.vertical, 9)
@@ -347,6 +398,16 @@ struct InventoryView: View {
                 VStack(alignment: .leading, spacing: 22) {
                     Label(l.text("kind_" + skill.kind.rawValue), systemImage: kindIcon(skill.kind)).font(MonitorTypography.caption.weight(.semibold)).foregroundStyle(.secondary)
                     Text(skill.name).font(MonitorTypography.componentTitle).textSelection(.enabled)
+                    reviewSecurityButton(skill)
+                    if !skill.findings.isEmpty {
+                        Button { model.mode = "checks" } label: {
+                            Label(l.count("view_component_findings", skill.findings.count),
+                                  systemImage: severityIcon(highestSeverity(skill.findings)))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .buttonStyle(.bordered)
+                        .accessibilityIdentifier("view-component-findings")
+                    }
                     Text(l.text("discovery_" + skill.discovery)).font(MonitorTypography.caption).foregroundStyle(.secondary)
                     if model.changedIDs.contains(skill.id) {
                         Label(l.text("changed_since_refresh"), systemImage: "circle.fill").font(MonitorTypography.caption).foregroundStyle(accent)
@@ -385,13 +446,13 @@ struct InventoryView: View {
                     if !skill.references.isEmpty {
                         detailSection("declared_references") {
                             Text(l.count("reference_count", skill.references.count)).font(MonitorTypography.callout).foregroundStyle(.secondary)
-                            Button(l.text("show_links")) { model.mode = "links" }.buttonStyle(.link)
+                            Button(l.text("show_links")) { model.mode = "links" }.buttonStyle(.bordered)
                         }
                     }
                     if !skill.findings.isEmpty {
                         detailSection("metadata_checks") {
                             Text(l.count("finding_count", skill.findings.count)).font(MonitorTypography.callout).foregroundStyle(.secondary)
-                            Button(l.text("show_checks")) { model.mode = "checks" }.buttonStyle(.link)
+                            Button(l.text("show_checks")) { model.mode = "checks" }.buttonStyle(.bordered)
                         }
                     }
                     if let modified = skill.modifiedAt {
@@ -400,6 +461,9 @@ struct InventoryView: View {
                 }.padding(24).frame(maxWidth: .infinity, alignment: .leading)
             }.accessibilityIdentifier("detail")
             }
+        } else if model.mode == "checks" && model.hasScanned && model.findingComponentCount == 0 {
+            emptyState("no_check_findings", detail: "no_findings", icon: "checklist")
+                .accessibilityIdentifier("checks-pane")
         } else {
             emptyState("select_file", detail: "select_file_detail", icon: "doc.text")
                 .accessibilityIdentifier("detail")
@@ -413,6 +477,32 @@ struct InventoryView: View {
         case .mcp: return "server.rack"
         case .rag: return "books.vertical"
         }
+    }
+
+    private func reviewSecurityButton(_ skill: LocalSkill) -> some View {
+        Button {
+            showAudit = true
+            audit.prepare(component: skill, roots: model.roots, language: model.language)
+        } label: {
+            Label(l.text("review_security"), systemImage: "shield.lefthalf.filled")
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .buttonStyle(.bordered)
+        .accessibilityIdentifier("review-security")
+    }
+
+    private func highestSeverity(_ findings: [MetadataFinding]) -> String {
+        if findings.contains(where: { $0.severity == "high" }) { return "high" }
+        if findings.contains(where: { $0.severity == "medium" }) { return "medium" }
+        return "info"
+    }
+
+    private func severityIcon(_ severity: String) -> String {
+        severity == "high" ? "exclamationmark.octagon" : severity == "medium" ? "exclamationmark.triangle" : "info.circle"
+    }
+
+    private func severityColor(_ severity: String) -> Color {
+        severity == "high" ? .red : severity == "medium" ? .orange : .secondary
     }
 
     private var changesInspector: some View {
@@ -541,19 +631,22 @@ struct InventoryView: View {
     private func checksInspector(_ skill: LocalSkill) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                Text(l.text("metadata_checks")).font(MonitorTypography.title2.weight(.semibold))
-                Text(l.text("checks_explanation")).font(MonitorTypography.callout).foregroundStyle(.secondary)
-                Text(l.text("checks_scope")).font(MonitorTypography.caption).foregroundStyle(.secondary)
-                Text(skill.name).font(MonitorTypography.headline).textSelection(.enabled)
-                pathText(skill.filePath)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(l.text("metadata_checks")).font(MonitorTypography.title2.weight(.semibold))
+                    Text(skill.name).font(MonitorTypography.headline).textSelection(.enabled)
+                    Text(l.text("checks_signal_scope")).font(MonitorTypography.caption).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    reviewSecurityButton(skill)
+                }
                 if skill.findings.isEmpty {
                     Text(l.text("no_findings")).font(MonitorTypography.callout).foregroundStyle(.secondary)
                 }
                 ForEach(skill.findings, id: \.id) { finding in
                     VStack(alignment: .leading, spacing: 9) {
                         HStack {
-                            Text(l.text("severity_" + finding.severity)).font(MonitorTypography.caption.weight(.semibold))
-                                .foregroundStyle(finding.severity == "high" ? Color.red : finding.severity == "medium" ? .orange : .secondary)
+                            Label(l.text("severity_" + finding.severity), systemImage: severityIcon(finding.severity))
+                                .font(MonitorTypography.caption.weight(.semibold))
+                                .foregroundStyle(severityColor(finding.severity))
                             if let line = finding.line { Text(lineText(line)).font(MonitorTypography.caption).foregroundStyle(.secondary) }
                         }
                         Text(l.text("finding_" + finding.code)).font(MonitorTypography.headline)
@@ -570,7 +663,16 @@ struct InventoryView: View {
                         ForEach(skill.issues, id: \.self) { issue in issueText(issue) }
                     }
                 }
-                Text(l.text("unsupported_toml")).font(MonitorTypography.caption).foregroundStyle(.secondary)
+                DisclosureGroup(l.text("checks_coverage_details")) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        pathText(skill.filePath)
+                        Text(l.text("checks_explanation")).font(MonitorTypography.callout).foregroundStyle(.secondary)
+                        Text(l.text("checks_scope")).font(MonitorTypography.caption).foregroundStyle(.secondary)
+                        Text(l.text("unsupported_toml")).font(MonitorTypography.caption).foregroundStyle(.secondary)
+                    }.padding(.top, 10)
+                }
+                .font(MonitorTypography.callout)
+                .accessibilityIdentifier("checks-coverage-details")
             }.padding(24).frame(maxWidth: .infinity, alignment: .leading)
         }.accessibilityIdentifier("checks-pane")
     }
@@ -589,7 +691,8 @@ struct InventoryView: View {
                 Text(l.text("read_notices")).font(MonitorTypography.headline)
                 Spacer()
                 Button { model.showNotices = false } label: { Image(systemName: "xmark") }
-                    .buttonStyle(.borderless).accessibilityLabel(l.text("close_notices"))
+                    .buttonStyle(.bordered).help(l.text("close_notices"))
+                    .accessibilityLabel(l.text("close_notices"))
             }.padding(20)
             Divider()
             if !model.hasScanned && model.isScanning {
@@ -637,18 +740,25 @@ struct InventoryView: View {
                     Text(l.text(model.inventory.limited ? "partial_scan" : "last_scan") + " " + l.date(model.inventory.scannedAt))
                 }
                 Spacer()
+            }
+            if model.hasComparison {
+                HStack(spacing: 12) {
+                    Text(l.count("added_count", model.addedIDs.count))
+                    Text(l.count("changed_count", model.changedIDs.count))
+                    Text(l.count("removed_count", model.removedIDs.count))
+                }
+            }
+            HStack(spacing: 12) {
                 if model.hasComparison {
                     Button { model.mode = "changes" } label: {
-                        HStack(spacing: 8) {
-                            Text(l.count("added_count", model.addedIDs.count))
-                            Text(l.count("changed_count", model.changedIDs.count))
-                            Text(l.count("removed_count", model.removedIDs.count))
-                        }
-                    }.buttonStyle(.link).help(l.text("view_changes"))
+                        Label(l.text("view_changes"), systemImage: "clock.arrow.circlepath")
+                            .fixedSize(horizontal: false, vertical: true)
+                    }.buttonStyle(.bordered).help(l.text("view_changes"))
                 }
                 if !model.inventory.notices.isEmpty {
-                    Button(l.text("show_notices")) { model.showNotices = true }.buttonStyle(.link)
+                    Button(l.text("show_notices")) { model.showNotices = true }.buttonStyle(.bordered)
                 }
+                Spacer(minLength: 0)
             }
             if model.comparisonDeferred {
                 Label(l.text("comparison_paused_detail"), systemImage: "exclamationmark.circle")

@@ -252,8 +252,38 @@ struct InventoryModelTests {
         try expect(subject.filteredSkills.map(\.id) == [a.id, c.id, d.id, e.id], "Disabling findings preserves type filter")
     }
 
+    @MainActor private static func findingsNavigation() async throws {
+        let warning = MetadataFinding(id: "high", code: "fixture_high", severity: "high", evidence: "Fixture", line: 7)
+        let advisory = MetadataFinding(id: "info", code: "fixture_info", severity: "info", evidence: "Fixture", line: nil)
+        let clean = component("clean")
+        let first = component("first", findings: [warning, advisory])
+        let second = component("second", kind: .mcp, findings: [advisory])
+        let subject = model([inventory([clean, first, second])])
+        try await refresh(subject)
+        try expect(subject.findingCount == 3, "Summary counts all findings without counting components twice")
+        try expect(subject.findingComponentCount == 2, "Summary separately counts affected components")
+        subject.search = "no-match"
+        subject.kindFilter = "rag"
+        subject.duplicatesOnly = true
+        subject.showNotices = true
+        subject.selectedID = clean.id
+        subject.showAllFindings()
+        try expect(subject.mode == "checks" && subject.findingsOnly, "Primary findings action opens check results")
+        try expect(subject.search.isEmpty && subject.kindFilter == "all" && !subject.duplicatesOnly,
+                   "Primary findings action clears conflicting filters")
+        try expect(!subject.showNotices && subject.selectedSkill?.id == first.id,
+                   "Primary findings action reveals the first affected component")
+        try expect(subject.filteredSkills.map(\.id) == [first.id, second.id], "Information-only components remain reachable")
+        let empty = model([inventory([clean])])
+        try await refresh(empty)
+        empty.showAllFindings()
+        try expect(empty.findingCount == 0 && empty.findingComponentCount == 0 && empty.selectedID == nil,
+                   "Zero findings never selects an unrelated clean component")
+    }
+
     @MainActor static func main() async {
         do {
+            try await findingsNavigation()
             try await findingsFilter()
             try await partialRecovery()
             try await failedObservationRecovery()

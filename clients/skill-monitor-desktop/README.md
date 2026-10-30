@@ -19,7 +19,7 @@
 вручную по указанному пути.
 
 Откройте `index.html` из этой папки в браузере для просмотра интерфейса.
-Исходный код отдельного локального клиента macOS 0.2.3 находится в
+Исходный код отдельного локального клиента macOS 0.3.0 находится в
 [`../skill-monitor-macos/`](../skill-monitor-macos/README.md); это отдельный локальный клиент.
 Добавление зависимостей, нативного подключения и общего ядра ожидает независимого
 ревью в изолированной среде. До выпуска нужны проверки на каждой целевой ОС.
@@ -42,7 +42,7 @@ the default folder. This is guidance, not a result from reading your computer.
 Invalid-configuration guidance points to the source path for manual JSON review.
 
 Open `index.html` in this folder in a browser to review the interface.
-The source for the separate local macOS 0.2.3 client is in
+The source for the separate local macOS 0.3.0 client is in
 [`../skill-monitor-macos/`](../skill-monitor-macos/README.md); it is a separate local client.
 Dependencies, the native connection and the shared core await an independent
 review in an isolated environment. Each target OS needs testing before release.
@@ -61,7 +61,7 @@ review in an isolated environment. Each target OS needs testing before release.
 配置无效时，提示会指向源文件路径，供手动检查 JSON。
 
 在浏览器中打开此文件夹内的 `index.html` 即可审阅界面。
-独立本地 macOS 0.2.3 客户端的源代码位于
+独立本地 macOS 0.3.0 客户端的源代码位于
 [`../skill-monitor-macos/`](../skill-monitor-macos/README.md)，是独立的本地客户端。
 添加依赖、原生连接和共享核心前，仍需在隔离环境中进行独立审查。
 发布前必须在每个目标操作系统上测试。

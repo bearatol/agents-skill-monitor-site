@@ -37,6 +37,8 @@ def main():
         if directory.is_symlink():
             raise SystemExit("Test output directories must not be symlinks.")
         directory.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["/usr/bin/env", "python3", "-B", str(SOURCE / "Tests" / "BuildScriptTests.py")],
+                   cwd=ROOT, check=True, timeout=30)
     with tempfile.TemporaryDirectory(prefix=".sdk-preparation-", dir=output) as directory:
         for module in ("Foundation", "AppKit", "CryptoKit"):
             preparation = Path(directory) / ("prepare-" + module + ".swift")
@@ -52,6 +54,9 @@ def main():
         ("suggestions", ["FolderSuggestions.swift"], "FolderSuggestionTests.swift"),
         ("model", ["SkillInventory.swift", "MetadataAnalysis.swift", "FolderSuggestions.swift", "Localization.swift", "InventoryModel.swift"], "InventoryModelTests.swift"),
         ("integration", ["SkillInventory.swift", "MetadataAnalysis.swift", "FolderSuggestions.swift", "Localization.swift", "InventoryModel.swift"], "IntegrationTests.swift"),
+        ("local-ai", ["LocalAI.swift"], "LocalAITests.swift"),
+        ("audit", ["SkillInventory.swift", "MetadataAnalysis.swift", "ComponentAudit.swift"], "ComponentAuditTests.swift"),
+        ("audit-session", ["SkillInventory.swift", "MetadataAnalysis.swift", "Localization.swift", "LocalAI.swift", "ComponentAudit.swift", "AuditSession.swift"], "AuditSessionTests.swift"),
     ]
     for name, source_names, test_name in suites:
         executable = output / name
