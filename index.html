@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; img-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <meta name="description" content="Skill Monitor: local inspection of skills, agents, MCP and RAG on Mac. Preview 0.2.3 for Apple Silicon.">
+  <meta name="description" content="Skill Monitor: local inspection of skills, agents, MCP and RAG on Mac. Preview 0.2.3 for Apple Silicon and Intel.">
   <meta name="color-scheme" content="light">
   <title>Skill Monitor | Preview 0.2.3</title>
   <link rel="stylesheet" href="site.css">
@@ -36,8 +36,8 @@
           <p class="hero-summary" data-text="hero.summary">View skills, agents, MCP servers and RAG sources in selected folders on your Mac. Compare metadata, declared links and changes between reads.</p>
           <div class="download-block">
             <p class="download-version" data-text="download.version">0.2.3-preview &#183; ZIP</p>
-            <p class="download-requirements" id="download-requirements" data-text="download.requirements">macOS 13 or later &#183; Apple Silicon (arm64)</p>
-            <a class="button button-primary" href="https://github.com/bearatol/agents-skill-monitor-site/releases/download/v0.2.3-preview/AgentsSkillMonitor-macOS-arm64.zip" aria-describedby="download-requirements download-warning"><span data-text="download.label">Download for Apple Silicon Mac</span><span class="download-arrow" aria-hidden="true"></span></a>
+            <p class="download-requirements" id="download-requirements" data-text="download.requirements">macOS 13 or later &#183; Apple Silicon and Intel</p>
+            <a class="button button-primary" href="https://github.com/bearatol/agents-skill-monitor-site/releases/download/v0.2.3-preview/AgentsSkillMonitor-macOS-universal2.zip" aria-describedby="download-requirements download-warning"><span data-text="download.label">Download for Mac</span><span class="download-arrow" aria-hidden="true"></span></a>
             <p class="download-warning" id="download-warning" data-text="download.warning">Preview build with an ad-hoc signature, not notarized by Apple. macOS may block the first launch. Launch on a clean Mac has not been tested.</p>
             <a class="text-link" href="https://github.com/bearatol/agents-skill-monitor-site/releases/tag/v0.2.3-preview" data-text="download.releaseNotes">Changes and remaining checks</a>
           </div>
@@ -74,7 +74,7 @@
         <div class="platform-grid">
           <article class="platform platform-available">
             <h3 data-text="platforms.macTitle">macOS</h3>
-            <p data-text="platforms.macBody">Preview 0.2.3 for macOS 13+ on Apple Silicon. Russian, English and Simplified Chinese interface. No Intel Mac build.</p>
+            <p data-text="platforms.macBody">Preview 0.2.3 for macOS 13+ on Apple Silicon and Intel. One universal download. Russian, English and Simplified Chinese interface.</p>
           </article>
           <article class="platform">
             <span class="status-label" data-text="platforms.pendingLabel">No binary yet</span>
@@ -91,7 +91,7 @@
 
       <section class="scope-note" aria-labelledby="scope-title">
         <h2 id="scope-title" data-text="scope.title">What has been checked</h2>
-        <p data-text="scope.body">The Mac client passed 503 assertions and 11 real-filesystem scenarios, with no skips. The shared interface passed 21 checks; a fresh independent product review covered source and a synthetic DOM. This is not verification in a real browser or across three operating systems. Clean-Mac launch, VoiceOver and the minimum 1040&#215;650 window have not been verified. No user study has been conducted.</p>
+        <p data-text="scope.body">The Mac client passed 503 assertions and 11 real-filesystem scenarios on each architecture: native arm64 and x86_64 via Rosetta on Apple Silicon, with no skips. This does not verify operation on Intel hardware or macOS 13. The shared interface passed 21 checks; independent product review covered source and a synthetic DOM. Real-browser checks, clean-Mac launch, VoiceOver and the minimum 1040&#215;650 window remain unverified. No user study has been conducted.</p>
       </section>
     </main>
 

@@ -124,21 +124,51 @@ RAG 元数据来自 `rag.sources.json` 和 `rag.json` 中的 `sources[]` 声明�
 直接连接模型和运行杀毒引擎的功能暂缓, 等待在隔离环境中进行独立审核。
 客户端不修改 APM 的软件包所有权记录，尚未接入 APM 的安装和更新功能。
 
+## Download and compatibility
+
+[Download for Mac](https://github.com/bearatol/agents-skill-monitor-site/releases/download/v0.2.3-preview/AgentsSkillMonitor-macOS-universal2.zip)
+contains both Apple Silicon (arm64) and Intel (x86_64) code. The deployment
+target is macOS 13 or later. Native Windows and Linux clients and binaries are
+not available.
+
+This preview has an ad-hoc signature and is not notarized by Apple. macOS may
+block the first launch. Launch on a clean Mac has not been tested.
+
+The test suite passed 503 assertions and 11 real-filesystem scenarios on each
+architecture, with no skips: arm64 natively and x86_64 through Rosetta on Apple
+Silicon. These runs do not verify operation on physical Intel Macs or macOS 13.
+VoiceOver and the minimum 1040×650 window have not been verified.
+
 ## Build
 
-Use the installed Apple Swift toolchain and Python 3. No packages are downloaded.
-Run from the repository root:
+Use the installed Apple Swift toolchain and Python 3 on macOS. No packages are
+downloaded. Run from the repository root to build one app for both types of Mac:
 
 ```sh
-python3 -B clients/skill-monitor-macos/build.py
+python3 -B clients/skill-monitor-macos/build.py --arch universal2
 ```
 
-Run synthetic metadata and folder-proposal checks with:
+For an Intel-only build:
 
 ```sh
-python3 -B clients/skill-monitor-macos/test.py
+python3 -B clients/skill-monitor-macos/build.py --arch x86_64
 ```
 
-The application and ZIP are written under `build/skill-monitor-macos/`.
-The build targets macOS 13 or later on the build machine's architecture.
-The local build has an ad-hoc signature and is not notarized for distribution.
+Use `--arch arm64` for Apple Silicon only. Omitting `--arch` uses the build
+machine's architecture.
+
+Run the metadata, folder-proposal, model and filesystem checks separately for
+each architecture:
+
+```sh
+python3 -B clients/skill-monitor-macos/test.py --arch arm64
+python3 -B clients/skill-monitor-macos/test.py --arch x86_64
+```
+
+Running x86_64 tests on Apple Silicon requires Rosetta to be installed. The test
+command does not install it. An Intel Mac cannot run the arm64 tests.
+
+With an explicit `--arch`, the application and ZIP are written under
+`build/skill-monitor-macos/<arch>/`. Without it they go directly under
+`build/skill-monitor-macos/`. Each build targets macOS 13 or later. Local builds
+have ad-hoc signatures and are not notarized for distribution.
